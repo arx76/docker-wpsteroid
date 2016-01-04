@@ -10,14 +10,16 @@ ENV DEBIAN_FRONTEND noninteractive
 # Enable all repositories ================
 
 # Need to add-apt-repository
-RUN apt-get install -y software-properties-common
+RUN apt-get install -y \
+    software-properties-common \
+    curl
 
 # Enable HHVM repo
 RUN apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0x5a16e7281be7a449 \
  && add-apt-repository -y "deb http://dl.hhvm.com/ubuntu $(lsb_release -sc) main"
  
 # Enable Percona repo
-RUN wget https://repo.percona.com/apt/percona-release_0.1-3.$(lsb_release -sc)_all.deb \
+RUN curl https://repo.percona.com/apt/percona-release_0.1-3.$(lsb_release -sc)_all.deb \
  && dpkg -i percona-release_0.1-3.$(lsb_release -sc)_all.deb \
  && rm -f percona-release_0.1-3.$(lsb_release -sc)_all.deb
  
@@ -40,7 +42,6 @@ RUN apt-get -y update && apt-get install -y \
     python-pycurl \
     python-mysqldb \
     git \
-    curl \
     unzip \
     php5-mysql \
     traceroute \ 
