@@ -1,15 +1,40 @@
 FROM ubuntu:14.04
 MAINTAINER Alex Newman <alex@newman.pro>
 
-# TODO: Merge all apt-get update in one to minimize building time!
+# TODO: Variables!
+# DONE: Merge all apt-get update in one to minimize building time!
 
 # Let the container know that there is no TTY
 ENV DEBIAN_FRONTEND noninteractive
 
+# Enable all repositories ================
+
+# Need to add-apt-repository
+RUN apt-get install -y software-properties-common
+
+# Enable HHVM repo
+RUN apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0x5a16e7281be7a449 \
+ && add-apt-repository -y "deb http://dl.hhvm.com/ubuntu $(lsb_release -sc) main"
+ 
+# Enable Percona repo
+RUN wget https://repo.percona.com/apt/percona-release_0.1-3.$(lsb_release -sc)_all.deb \
+ && dpkg -i percona-release_0.1-3.$(lsb_release -sc)_all.deb \
+ && rm -f percona-release_0.1-3.$(lsb_release -sc)_all.deb
+ 
+# Enable NGiNX repo
+RUN apt-key adv --fetch-keys http://nginx.org/keys/nginx_signing.key \
+ && add-apt-repository -y "deb http://nginx.org/packages/ubuntu $(lsb_release -sc) nginx"
+
+# TODO: Update to Varnish 4.1 (configuration changed)
+# Enable Varnish repo (curl to grab + apt-transport-https)
+RUN curl https://repo.varnish-cache.org/GPG-key.txt | apt-key add - \
+ && add-apt-repository -y "deb https://repo.varnish-cache.org/ubuntu/ $(lsb_release -sc) varnish-3.0"
+
+# Install basic packages =================
+
 # Install necessary packages for proper system state
 RUN apt-get -y update && apt-get install -y \
     apt-transport-https \
-    software-properties-common \
     sysv-rc-conf \
     python-apt \ 
     python-pycurl \
@@ -38,14 +63,8 @@ RUN curl -o /usr/local/bin/boris https://github.com/d11wtq/boris/releases/downlo
  
 # HVVM (default) -------------------------
 
-# Enable HHVM repo key
-RUN apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0x5a16e7281be7a449
-
-# Enable HHVM repo
-RUN add-apt-repository -y "deb http://dl.hhvm.com/ubuntu $(lsb_release -sc) main"
-
 # Install HHVM
-RUN apt-get -y update && apt-get install -y hhvm
+RUN apt-get install -y hhvm
 
 # TODO: Template /etc/hhvm/server.ini & restart service?
 # TODO: Template /etc/hhvm/php.ini & restart service?
@@ -83,13 +102,8 @@ RUN service memcached restart
 
 # TODO: MySQL template?
 
-# Enable Percona repo
-RUN wget https://repo.percona.com/apt/percona-release_0.1-3.$(lsb_release -sc)_all.deb \
- && dpkg -i percona-release_0.1-3.$(lsb_release -sc)_all.deb \
- && rm -f percona-release_0.1-3.$(lsb_release -sc)_all.deb
- 
 # Install Percona
-RUN apt-get -y update && apt-get install -y \
+RUN apt-get install -y \
     percona-server-server-5.6 \
     percona-server-client-5.6
     
@@ -97,14 +111,8 @@ RUN apt-get -y update && apt-get install -y \
 
 # NGiNX ----------------------------------
 
-# Enable NGiNX repo key
-RUN apt-key adv --fetch-keys http://nginx.org/keys/nginx_signing.key
-
-# Enable NGiNX repo
-RUN add-apt-repository -y "deb http://nginx.org/packages/ubuntu $(lsb_release -sc) nginx"
-
 # Install NGiNX
-RUN apt-get -y update && apt-get install -y nginx
+RUN apt-get install -y nginx
 
 # TODO: update-rc.d nginx defaults & restart?
 
@@ -133,15 +141,8 @@ RUN ln -s /usr/share/wp-cli/wp /usr/local/bin/wp
 
 # Varnish --------------------------------
 
-# Enable Varnish repo key (https!)
-RUN curl https://repo.varnish-cache.org/GPG-key.txt | apt-key add -
-
-# Enable Varnish repo
-# TODO: Update to Varnish 4.1 (configuration changed)
-RUN add-apt-repository -y "deb https://repo.varnish-cache.org/ubuntu/ $(lsb_release -sc) varnish-3.0"
-
 # Install Varnish
-RUN apt-get -y update && apt-get install -y varnish
+RUN apt-get install -y varnish
 # TODO: Varnish reload?
 
 # TODO: Template /etc/varnish/default.vcl (root:root 0644)
