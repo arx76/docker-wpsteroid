@@ -114,16 +114,26 @@ RUN apt-get install -y \
 # Install NGiNX
 RUN apt-get install -y nginx
 
-# TODO: update-rc.d nginx defaults & restart?
+# TODO: Why?
+RUN update-rc.d nginx defaults
 
-# TODO: Ensure /etc/nginx directories exist
+# Ensure /etc/nginx directories exist
+RUN install -d -m 0755 -o root -g root /etc/nginx/sites-available
+RUN install -d -m 0755 -o root -g root /etc/nginx/sites-enabled
+
 # TODO: Template /etc/nginx/nginx.conf
 # TODO: Template /etc/nginx/conf.d/upstream.conf
-# TODO: Remove /etc/nginx/sites-enabled/default
-# TODO: Remove /etc/nginx/conf.d/default.conf
-# TODO: Remove /etc/nginx/conf.d/example_ssl.conf
-# TODO: Make directory /var/www/html (wp_doc_root -> variable)
-# TODO: Setup wp_doc_root with web_user (www-data), web_group (www-data)
+
+# Remove defaults
+RUN rm -f /etc/nginx/sites-enabled/default \
+ && rm -f /etc/nginx/conf.d/default.conf \
+ && rm -f /etc/nginx/conf.d/example_ssl.conf
+
+# Make directory /var/www/html (wp_doc_root -> variable) with web_user (www-data), web_group (www-data)
+RUN install -d -m 0755 -o www-data -g www-data /var/www/html
+
+# Restart after configuration
+RUN service nginx restart
 
 # WP-CLI ---------------------------------
 
