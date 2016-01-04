@@ -11,8 +11,9 @@ ENV DEBIAN_FRONTEND noninteractive
 
 # Need to add-apt-repository
 RUN apt-get install -y \
-    software-properties-common \
+    apt-transport-https \
     curl
+    software-properties-common \
 
 # Enable HHVM repo
 RUN apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0x5a16e7281be7a449 \
@@ -36,20 +37,19 @@ RUN curl https://repo.varnish-cache.org/GPG-key.txt | apt-key add - \
 
 # Install necessary packages for proper system state
 RUN apt-get -y update && apt-get install -y \
-    apt-transport-https \
-    sysv-rc-conf \
-    python-apt \ 
-    python-pycurl \
-    python-mysqldb \
-    git \
-    unzip \
-    php5-mysql \
-    traceroute \ 
     ack-grep \
-    subversion \
     autojump \
+    git \
+    php5-mysql \
+    python-apt \ 
+    python-mysqldb \
+    python-pycurl \
     siege
-  
+    subversion \
+    sysv-rc-conf \
+    traceroute \ 
+    unzip \
+
 # Get Composer
 RUN curl https://getcomposer.org/composer.phar -o /usr/local/bin/composer \
  && chmod 0755 /usr/local/bin/composer
