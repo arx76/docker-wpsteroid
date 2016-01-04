@@ -8,6 +8,7 @@ ENV DEBIAN_FRONTEND noninteractive
 
 # Install necessary packages for proper system state
 RUN apt-get -y update && apt-get install -y \
+    apt-transport-https \
     software-properties-common \
     sysv-rc-conf \
     python-apt \ 
@@ -129,6 +130,23 @@ RUN chmod 755 /usr/share/wp-cli/wp
 
 # Symlink WP-CLI
 RUN ln -s /usr/share/wp-cli/wp /usr/local/bin/wp
+
+# Varnish --------------------------------
+
+# Enable Varnish repo key (https!)
+RUN curl https://repo.varnish-cache.org/GPG-key.txt | apt-key add -
+
+# Enable Varnish repo
+# TODO: Update to Varnish 4.1 (configuration changed)
+RUN add-apt-repository -y "deb https://repo.varnish-cache.org/ubuntu/ $(lsb_release -sc) varnish-3.0"
+
+# Install Varnish
+RUN apt-get -y update && apt-get install -y varnish
+# TODO: Varnish reload?
+
+# TODO: Template /etc/varnish/default.vcl (root:root 0644)
+# TODO: Template /etc/default/varnishncsa (root:root 0644)
+# Ensure Varnish is running
     
 # Security -------------------------------
 
