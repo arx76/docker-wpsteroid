@@ -1,8 +1,9 @@
-FROM ubuntu:14.04
+FROM ubuntu:trusty
 MAINTAINER Alex Newman <alex@newman.pro>
 
-# TODO: Variables!
-# DONE: Merge all apt-get update in one to minimize building time!
+# TODO: Variables! Arguments!
+# TODO: Inherits from buildpack-deps:trusty-scm? Check all dependencies once again!
+#       Split to different containers by components? Check best practices.
 
 # Let the container know that there is no TTY
 ENV DEBIAN_FRONTEND noninteractive
