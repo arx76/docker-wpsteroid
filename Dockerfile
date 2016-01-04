@@ -19,9 +19,9 @@ RUN apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0x5a16e728
  && add-apt-repository -y "deb http://dl.hhvm.com/ubuntu $(lsb_release -sc) main"
  
 # Enable Percona repo
-RUN curl https://repo.percona.com/apt/percona-release_0.1-3.$(lsb_release -sc)_all.deb \
- && dpkg -i percona-release_0.1-3.$(lsb_release -sc)_all.deb \
- && rm -f percona-release_0.1-3.$(lsb_release -sc)_all.deb
+RUN curl https://repo.percona.com/apt/percona-release_0.1-3.$(lsb_release -sc)_all.deb -o /tmp/percona-release_0.1-3.$(lsb_release -sc)_all.deb \
+ && dpkg -i /tmp/percona-release_0.1-3.$(lsb_release -sc)_all.deb \
+ && rm -f /tmp/percona-release_0.1-3.$(lsb_release -sc)_all.deb
  
 # Enable NGiNX repo
 RUN apt-key adv --fetch-keys http://nginx.org/keys/nginx_signing.key \
@@ -51,15 +51,15 @@ RUN apt-get -y update && apt-get install -y \
     siege
   
 # Get Composer
-RUN curl -o /usr/local/bin/composer https://getcomposer.org/composer.phar \
+RUN curl https://getcomposer.org/composer.phar -o /usr/local/bin/composer \
  && chmod 0755 /usr/local/bin/composer
   
 # Get PsySH
-RUN curl -o /usr/local/bin/psysh http://psysh.org/psysh \
+RUN curl http://psysh.org/psysh -o /usr/local/bin/psysh \
  && chmod 0755 /usr/local/bin/psysh
  
 # Get Boris
-RUN curl -o /usr/local/bin/boris https://github.com/d11wtq/boris/releases/download/v1.0.8/boris.phar \
+RUN curl https://github.com/d11wtq/boris/releases/download/v1.0.8/boris.phar -o /usr/local/bin/boris \
  && chmod 0755 /usr/local/bin/boris
  
 # HVVM (default) -------------------------
@@ -122,8 +122,11 @@ RUN update-rc.d nginx defaults
 RUN install -d -m 0755 -o root -g root /etc/nginx/sites-available
 RUN install -d -m 0755 -o root -g root /etc/nginx/sites-enabled
 
-# TODO: Template /etc/nginx/nginx.conf
-# TODO: Template /etc/nginx/conf.d/upstream.conf
+# Template /etc/nginx/nginx.conf
+COPY etc/nginx/nginx.conf /etc/nginx/nginx.conf
+
+# Template /etc/nginx/conf.d/upstream.conf
+COPY etc/nginx/conf.d/upstream.conf /etc/nginx/conf.d/upstream.conf
 
 # Remove defaults
 RUN rm -f /etc/nginx/sites-enabled/default \
@@ -156,9 +159,15 @@ RUN ln -s /usr/share/wp-cli/wp /usr/local/bin/wp
 RUN apt-get install -y varnish
 # TODO: Varnish reload?
 
-# TODO: Template /etc/varnish/default.vcl (root:root 0644)
-# TODO: Template /etc/default/varnishncsa (root:root 0644)
-# Ensure Varnish is running
+# Template /etc/varnish/default.vcl (root:root 0644)
+COPY etc/varnish/default.vcl /etc/varnish/default.vcl
+
+# Template /etc/default/* (root:root 0644)
+COPY etc/default/varnish /etc/default/varnish
+COPY etc/default/varnishncsa /etc/default/varnishncsa
+
+# Ensure Varnish is running & reload configuration
+RUN service varnish restart && service varnishncsa restart
     
 # Security -------------------------------
 
