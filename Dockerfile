@@ -92,7 +92,43 @@ RUN apt-get -y update && apt-get install -y \
     percona-server-server-5.6 \
     percona-server-client-5.6
     
-# TODO update-rc.d mysql defaults & restart / reload?
+# TODO update-rc.d mysql defaults & restart?
+
+# NGiNX ----------------------------------
+
+# Enable NGiNX repo key
+RUN apt-key adv --fetch-keys http://nginx.org/keys/nginx_signing.key
+
+# Enable NGiNX repo
+RUN add-apt-repository -y "deb http://nginx.org/packages/ubuntu $(lsb_release -sc) nginx"
+
+# Install NGiNX
+RUN apt-get -y update && apt-get install -y nginx
+
+# TODO: update-rc.d nginx defaults & restart?
+
+# TODO: Ensure /etc/nginx directories exist
+# TODO: Template /etc/nginx/nginx.conf
+# TODO: Template /etc/nginx/conf.d/upstream.conf
+# TODO: Remove /etc/nginx/sites-enabled/default
+# TODO: Remove /etc/nginx/conf.d/default.conf
+# TODO: Remove /etc/nginx/conf.d/example_ssl.conf
+# TODO: Make directory /var/www/html (wp_doc_root -> variable)
+# TODO: Setup wp_doc_root with web_user (www-data), web_group (www-data)
+
+# WP-CLI ---------------------------------
+
+# Prepare location for WP-CLI
+RUN install -d -m 0755 -o root -g root /usr/share/wp-cli
+
+# Install WP-CLI
+RUN curl https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -o /usr/share/wp-cli/wp
+
+# Set executive bits on WP-CLI
+RUN chmod 755 /usr/share/wp-cli/wp
+
+# Symlink WP-CLI
+RUN ln -s /usr/share/wp-cli/wp /usr/local/bin/wp
     
 # Security -------------------------------
 
