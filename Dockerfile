@@ -12,8 +12,8 @@ ENV DEBIAN_FRONTEND noninteractive
 # Need to add-apt-repository
 RUN apt-get install -y \
     apt-transport-https \
-    curl
-    software-properties-common \
+    curl \
+    software-properties-common
 
 # Enable HHVM repo
 RUN apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0x5a16e7281be7a449 \
@@ -44,11 +44,11 @@ RUN apt-get -y update && apt-get install -y \
     python-apt \ 
     python-mysqldb \
     python-pycurl \
-    siege
+    siege \
     subversion \
     sysv-rc-conf \
     traceroute \ 
-    unzip \
+    unzip
 
 # Get Composer
 RUN curl https://getcomposer.org/composer.phar -o /usr/local/bin/composer \
